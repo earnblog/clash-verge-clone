@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clash Verge Clone</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">CV</div>
+    <div class="nav-item active" data-page="proxies"     onclick="switchPage('proxies')">     <i class="ti ti-topology-star-3"></i><span class="tooltip">代理</span></div>
+    <div class="nav-item"        data-page="rules"       onclick="switchPage('rules')">       <i class="ti ti-list-details"></i>   <span class="tooltip">规则</span></div>
+    <div class="nav-item"        data-page="connections" onclick="switchPage('connections')"> <i class="ti ti-network"></i>         <span class="tooltip">连接</span></div>
+    <div class="nav-item"        data-page="logs"        onclick="switchPage('logs')">        <i class="ti ti-terminal-2"></i>     <span class="tooltip">日志</span></div>
+    <div class="sidebar-spacer"></div>
+    <div class="nav-item"        data-page="profiles"    onclick="switchPage('profiles')">    <i class="ti ti-file-text"></i>      <span class="tooltip">配置</span></div>
+    <div class="nav-item"        data-page="settings"    onclick="switchPage('settings')">    <i class="ti ti-settings"></i>       <span class="tooltip">设置</span></div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Titlebar -->
+    <div class="titlebar">
+      <span class="page-title" id="page-title">代理</span>
+      <div class="titlebar-controls">
+        <div class="pill-btn" id="sys-proxy-btn"><span class="pill-dot" id="sys-dot"></span><span id="sys-label">系统代理</span></div>
+        <div class="pill-btn" id="tun-btn"><span class="pill-dot" id="tun-dot"></span><span id="tun-label">TUN 模式</span></div>
+        <div class="win-btns">
+          <div class="win-btn min"   id="btn-min"></div>
+          <div class="win-btn max"   id="btn-max"></div>
+          <div class="win-btn close" id="btn-close"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kernel Banner -->
+        <div class="kernel-banner" id="kernel-banner"></div>
+
+        <!-- Content -->
+    <div class="content">
+
+      <!-- ── Proxies ── -->
+      <div class="page active" id="page-proxies">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-label">上传速度 <i class="stat-icon ti ti-arrow-up"   style="color:var(--accent)"></i></div><div class="stat-value" id="up-speed">0<small>KB/s</small></div></div>
+          <div class="stat-card"><div class="stat-label">下载速度 <i class="stat-icon ti ti-arrow-down" style="color:var(--green)"></i></div> <div class="stat-value" id="dn-speed">0<small>KB/s</small></div></div>
+          <div class="stat-card"><div class="stat-label">活跃连接 <i class="stat-icon ti ti-plug"       style="color:var(--amber)"></i></div> <div class="stat-value">24<small>个</small></div></div>
+          <div class="stat-card"><div class="stat-label">累计流量 <i class="stat-icon ti ti-database"   style="color:var(--accent2)"></i></div><div class="stat-value">2.4<small>GB</small></div></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-hd">
+            <div class="chart-stats">
+              <div class="chart-stat"><span class="dot" style="background:var(--accent)"></span>上传 <b id="chart-up-val">0 KB/s</b></div>
+              <div class="chart-stat"><span class="dot" style="background:var(--green)"></span>下载 <b id="chart-dn-val">0 KB/s</b></div>
+            </div>
+            <div class="mode-tabs">
+              <div class="mode-tab active" data-mode="rule">规则</div>
+              <div class="mode-tab"        data-mode="global">全局</div>
+              <div class="mode-tab"        data-mode="direct">直连</div>
+            </div>
+          </div>
+          <canvas id="traffic-canvas"></canvas>
+        </div>
+        <div>
+          <div class="section-hd">
+            <span class="section-title">代理组</span>
+            <span class="section-action" onclick="testAllProxies()"><i class="ti ti-refresh" style="font-size:13px"></i> 全部测速</span>
+          </div>
+          <div class="proxy-grid" id="proxy-grid"></div>
+        </div>
+      </div>
+
+      <!-- ── Rules ── -->
+      <div class="page" id="page-rules">
+        <div class="section-hd">
+          <span class="section-title">规则列表 <span style="color:var(--text3);font-weight:400">· 共 2847 条</span></span>
+          <span class="section-action"><i class="ti ti-search" style="font-size:13px"></i> 搜索</span>
+        </div>
+        <div class="list-card" id="rules-list"></div>
+      </div>
+
+      <!-- ── Connections ── -->
+      <div class="page" id="page-connections">
+        <div class="section-hd">
+          <span class="section-title">活跃连接 <span style="color:var(--text3);font-weight:400">· 24 个</span></span>
+          <span class="section-action danger" data-action="close-all-conn"><i class="ti ti-plug-off" style="font-size:13px"></i> 全部关闭</span>
+        </div>
+        <div class="list-card" id="conn-list"></div>
+      </div>
+
+      <!-- ── Logs ── -->
+      <div class="page" id="page-logs">
+        <div class="section-hd">
+          <span class="section-title">实时日志</span>
+          <div style="display:flex;gap:8px">
+            <span class="section-action" id="btn-refresh-logs"><i class="ti ti-refresh" style="font-size:13px"></i> 刷新</span>
+            <span class="section-action danger" id="btn-clear-logs"><i class="ti ti-trash" style="font-size:13px"></i> 清空</span>
+          </div>
+        </div>
+        <div class="log-box" id="log-box"></div>
+      </div>
+
+      <!-- ── Profiles ── -->
+      <div class="page" id="page-profiles">
+        <div class="section-hd">
+          <span class="section-title">订阅配置</span>
+          <span class="section-action" id="btn-add-profile"><i class="ti ti-plus" style="font-size:13px"></i> 新增订阅</span>
+        </div>
+        <div id="profile-list" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
+      <!-- ── Settings ── -->
+      <div class="page" id="page-settings">
+        <div class="section-hd"><span class="section-title">常规设置</span></div>
+        <div class="list-card" id="settings-list"></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
